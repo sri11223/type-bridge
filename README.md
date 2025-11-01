@@ -1,10 +1,10 @@
-# 🌉 Type-Bridge
+# 🧵 TypeWeaver
 
 **Stop manually syncing types between your backend and frontend.**
 
 Auto-generate TypeScript interfaces from your ORM schemas in real-time.
 
-[![npm version](https://img.shields.io/npm/v/type-bridge.svg)](https://www.npmjs.com/package/type-bridge)
+[![npm version](https://img.shields.io/npm/v/typeweaver.svg)](https://www.npmjs.com/package/typeweaver)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
@@ -43,13 +43,13 @@ interface User {
 
 ```bash
 # One-time setup
-npx type-bridge init
+npx typeweaver@beta init
 
 # Generate types once
-npx type-bridge generate
+npx typeweaver@beta generate
 
 # Or watch mode (auto-sync on every change)
-npx type-bridge watch
+npx typeweaver@beta watch
 ```
 
 **That's it.** Your frontend types stay in sync automatically.
@@ -61,16 +61,16 @@ npx type-bridge watch
 ### Installation
 
 ```bash
-npm install -D type-bridge
+npm install -D typeweaver@beta
 ```
 
 ### Setup (Interactive)
 
 ```bash
-npx type-bridge init
+npx typeweaver@beta init
 ```
 
-This creates `type-bridge.config.json`:
+This creates `typeweaver.config.json`:
 
 ```json
 {
@@ -85,10 +85,10 @@ This creates `type-bridge.config.json`:
 
 ```bash
 # One-time generation
-npx type-bridge generate
+npx typeweaver@beta generate
 
 # Watch mode (auto-regenerate on changes)
-npx type-bridge watch
+npx typeweaver@beta watch
 ```
 
 ---
@@ -190,7 +190,7 @@ export interface User {
 
 ## ⚙️ Configuration
 
-### Config File (`type-bridge.config.json`)
+### Config File (`typeweaver.config.json`)
 
 ```json
 {
@@ -231,7 +231,7 @@ export interface User {
 Initialize configuration with interactive prompts.
 
 ```bash
-npx type-bridge init
+npx typeweaver@beta init
 ```
 
 **Options:**
@@ -242,7 +242,7 @@ npx type-bridge init
 Generate types once from your schemas.
 
 ```bash
-npx type-bridge generate
+npx typeweaver@beta generate
 ```
 
 **Options:**
@@ -256,7 +256,7 @@ npx type-bridge generate
 Watch schemas and auto-generate types on changes.
 
 ```bash
-npx type-bridge watch
+npx typeweaver@beta watch
 ```
 
 **Options:**
@@ -268,7 +268,7 @@ npx type-bridge watch
 Show current configuration.
 
 ```bash
-npx type-bridge info
+npx typeweaver@beta info
 ```
 
 ### `clean`
@@ -276,7 +276,7 @@ npx type-bridge info
 Remove all generated type files.
 
 ```bash
-npx type-bridge clean
+npx typeweaver@beta clean
 ```
 
 **Options:**
@@ -293,7 +293,7 @@ backend/
   models/
     User.js
     Post.js
-  type-bridge.config.json
+  typeweaver.config.json
 
 frontend/
   types/  ← Auto-generated
@@ -321,7 +321,7 @@ Generate types for your TypeScript SDK:
 ```bash
 api/
   schema.prisma
-  type-bridge.config.json → outputs to sdk/types/
+  typeweaver.config.json → outputs to sdk/types/
 sdk/
   types/
     index.ts  ← Auto-generated
@@ -371,7 +371,7 @@ sdk/
 
 | Solution | Zero Migration | Real-Time | No Stack Lock-in | Setup Time |
 |----------|----------------|-----------|------------------|------------|
-| **type-bridge** | ✅ | ✅ (<500ms) | ✅ | <1 min |
+| **typeweaver** | ✅ | ✅ (<500ms) | ✅ | <1 min |
 | GraphQL Codegen | ❌ (Requires GraphQL) | ⚠️ (Slow) | ❌ | Weeks |
 | tRPC | ❌ (Full rewrite) | ✅ | ❌ | Days |
 | Manual npm packages | ✅ | ❌ (10+ min) | ✅ | Hours |
@@ -397,14 +397,14 @@ npm install
 npm test
 
 # Test CLI locally
-node bin/type-bridge.js generate --help
+node bin/typeweaver.js generate --help
 ```
 
 ---
 
 ## 📝 License
 
-MIT © Type-Bridge Contributors
+MIT © TypeWeaver Contributors
 
 ---
 
@@ -420,7 +420,7 @@ MIT © Type-Bridge Contributors
 
 - 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/type-bridge/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/type-bridge/discussions)
-- 📧 **Email**: support@type-bridge.dev
+- 📧 **Email**: support@typeweaver.dev
 
 ---
 
@@ -445,4 +445,5 @@ MIT © Type-Bridge Contributors
 
 **Made with ❤️ for full-stack TypeScript developers**
 
-Stop wasting time on type synchronization. Start using **type-bridge** today! 🚀
+Stop wasting time on type synchronization. Start using **typeweaver** today! 🚀
+
