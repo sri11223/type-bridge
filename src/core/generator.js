@@ -40,7 +40,7 @@ async function detectORM(projectRoot) {
  * @param {string} orm - ORM name
  * @param {string} projectRoot - Project root directory
  * @param {Object} options - Parse options
- * @returns {Promise<Object[]>} Array of normalized models
+ * @returns {Promise<Object>} Object with {models, enums}
  */
 async function parseSchemas(orm, projectRoot, options = {}) {
   switch (orm) {
@@ -49,12 +49,15 @@ async function parseSchemas(orm, projectRoot, options = {}) {
       if (!schemaPath) {
         throw new Error('Prisma schema file not found');
       }
+      // Prisma returns {models, enums}
       return await parsePrismaSchema(schemaPath);
     }
 
     case 'mongoose': {
       const modelsPath = options.modelsPath || path.join(projectRoot, 'models');
-      return await parseMongooseModels(modelsPath, options);
+      const models = await parseMongooseModels(modelsPath, options);
+      // Normalize Mongoose to same format: {models, enums}
+      return { models, enums: [] };
     }
 
     default:
@@ -132,7 +135,7 @@ async function generateTypes(config) {
 
     // Step 2: Parse schemas
     console.log('📖 Parsing schemas...');
-    const models = await parseSchemas(orm, projectRoot, options);
+    const { models, enums } = await parseSchemas(orm, projectRoot, options);
     
     if (models.length === 0) {
       return {
@@ -141,7 +144,7 @@ async function generateTypes(config) {
       };
     }
     
-    console.log(`✅ Found ${models.length} models`);
+    console.log(`✅ Found ${models.length} models` + (enums.length > 0 ? ` and ${enums.length} enums` : ''));
 
     // Step 3: Validate
     console.log('✔️  Validating schemas...');
@@ -173,7 +176,7 @@ async function generateTypes(config) {
       
     } else {
       // Write single file with all types
-      const allTypes = await generateTypeScriptFile(models, options);
+      const allTypes = await generateTypeScriptFile(models, { ...options, enums });
       
       // Ensure we have an output path
       if (!outputPath) {

@@ -26,9 +26,8 @@ function fieldToTypeScript(field) {
   }
   // Handle references (foreign keys)
   else if (field.isReference && field.referenceTo) {
-    // By default, use string for references
-    // In future: option to import and use actual type
-    tsType = 'string';
+    // Use the referenced model type name
+    tsType = field.referenceTo;
   }
   // Handle nested objects
   else if (field.type === STANDARD_TYPES.OBJECT && field.nested) {
@@ -55,6 +54,39 @@ function generateInlineInterface(fields) {
   });
   
   return `{\n${fieldStrings.join('\n')}\n}`;
+}
+
+/**
+ * Generate TypeScript enum
+ * @param {Object} enumDef - Enum definition {name, values, type}
+ * @param {Object} options - Generation options
+ * @returns {string} TypeScript enum code
+ */
+function generateEnum(enumDef, options = {}) {
+  const {
+    exportType = 'export',
+    includeComments = true
+  } = options;
+
+  const lines = [];
+
+  // Add auto-generated comment
+  if (includeComments) {
+    lines.push(`/** Auto-generated enum */`);
+  }
+
+  // Enum declaration
+  lines.push(`${exportType} enum ${enumDef.name} {`);
+
+  // Generate enum values
+  enumDef.values.forEach((value, index) => {
+    const comma = index < enumDef.values.length - 1 ? ',' : '';
+    lines.push(`  ${value} = '${value}'${comma}`);
+  });
+
+  lines.push(`}`);
+
+  return lines.join('\n');
 }
 
 /**
@@ -147,7 +179,8 @@ async function formatCode(code) {
 async function generateTypeScriptFile(models, options = {}) {
   const {
     includeHeader = true,
-    banner = null
+    banner = null,
+    enums = []
   } = options;
 
   const parts = [];
@@ -165,6 +198,13 @@ async function generateTypeScriptFile(models, options = {}) {
   // Add custom banner if provided
   if (banner) {
     parts.push(`/* ${banner} */`);
+    parts.push('');
+  }
+
+  // Generate enums first
+  if (enums && enums.length > 0) {
+    const enumCode = enums.map(e => generateEnum(e, options)).join('\n\n');
+    parts.push(enumCode);
     parts.push('');
   }
 
@@ -201,6 +241,7 @@ function generateIndexFile(modelNames) {
 
 module.exports = {
   generateInterface,
+  generateEnum,
   generateTypes,
   generateTypeScriptFile,
   generateIndexFile,

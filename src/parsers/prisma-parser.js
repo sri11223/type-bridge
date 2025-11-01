@@ -118,25 +118,68 @@ function parseModel(modelBlock, filePath) {
 }
 
 /**
+ * Parse a Prisma enum
+ * @param {string} enumBlock - Enum block from schema
+ * @returns {Object|null} Parsed enum or null
+ */
+function parseEnum(enumBlock) {
+  try {
+    // Extract enum name
+    const nameMatch = enumBlock.match(/enum\s+(\w+)/);
+    if (!nameMatch) return null;
+
+    const name = nameMatch[1];
+
+    // Extract enum values (lines that start with word characters)
+    const values = [];
+    const lines = enumBlock.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      // Match enum value (word at start of line, not 'enum' keyword)
+      if (trimmed && !trimmed.startsWith('//') && !trimmed.startsWith('enum') && !trimmed.includes('{') && !trimmed.includes('}')) {
+        values.push(trimmed);
+      }
+    }
+
+    return {
+      name,
+      values,
+      type: 'enum'
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
  * Parse entire Prisma schema file
  * @param {string} schemaPath - Path to schema.prisma file
- * @returns {Object[]} Array of normalized models
+ * @returns {Object} Object with models and enums arrays
  */
 async function parsePrismaSchema(schemaPath) {
   try {
     // Read schema file
     const content = await fs.readFile(schemaPath, 'utf-8');
     
-    // Extract all model blocks
-    const modelRegex = /model\s+\w+\s*\{[^}]+\}/g;
+    // Extract all model blocks (Fixed regex to handle nested braces)
+    const modelRegex = /model\s+(\w+)\s*\{[\s\S]*?\}/g;
     const modelBlocks = content.match(modelRegex) || [];
+    
+    // Extract all enum blocks
+    const enumRegex = /enum\s+(\w+)\s*\{[\s\S]*?\}/g;
+    const enumBlocks = content.match(enumRegex) || [];
     
     // Parse each model
     const models = modelBlocks
       .map(block => parseModel(block, schemaPath))
       .filter(model => model !== null);
 
-    return models;
+    // Parse each enum
+    const enums = enumBlocks
+      .map(block => parseEnum(block))
+      .filter(e => e !== null);
+
+    return { models, enums };
   } catch (error) {
     throw new Error(`Failed to parse Prisma schema: ${error.message}`);
   }
@@ -192,5 +235,6 @@ module.exports = {
   findPrismaSchema,
   detectPrisma,
   parseField,
-  parseModel
+  parseModel,
+  parseEnum
 };

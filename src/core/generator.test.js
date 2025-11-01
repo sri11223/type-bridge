@@ -43,10 +43,13 @@ describe('Core Generator', () => {
       await expect(parseSchemas('unsupported', testDir, {})).rejects.toThrow();
     });
 
-    test('should return array for mongoose', async () => {
+    test('should return object with models and enums for mongoose', async () => {
       const result = await parseSchemas('mongoose', testDir, { modelsPath: testDir });
 
-      expect(Array.isArray(result)).toBe(true);
+      expect(result).toHaveProperty('models');
+      expect(result).toHaveProperty('enums');
+      expect(Array.isArray(result.models)).toBe(true);
+      expect(Array.isArray(result.enums)).toBe(true);
     });
   });
 

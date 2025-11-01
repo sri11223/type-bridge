@@ -84,7 +84,7 @@ describe('TypeScript Generator', () => {
       expect(result).toBe('boolean');
     });
 
-    test('should convert reference field to string', () => {
+    test('should convert reference field to referenced type name', () => {
       const field = {
         name: 'authorId',
         type: 'string',
@@ -94,7 +94,7 @@ describe('TypeScript Generator', () => {
       };
 
       const result = fieldToTypeScript(field);
-      expect(result).toBe('string');
+      expect(result).toBe('User');
     });
 
     test('should handle any type', () => {

@@ -217,11 +217,11 @@ model Post {
     });
 
     test('should parse schema file with multiple models', async () => {
-      const models = await parsePrismaSchema(testSchemaPath);
+      const result = await parsePrismaSchema(testSchemaPath);
 
-      expect(models.length).toBe(2);
-      expect(models[0].modelName).toBe('User');
-      expect(models[1].modelName).toBe('Post');
+      expect(result.models.length).toBe(2);
+      expect(result.models[0].modelName).toBe('User');
+      expect(result.models[1].modelName).toBe('Post');
     });
 
     test('should throw error for non-existent file', async () => {
