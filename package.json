@@ -1,10 +1,10 @@
 {
-  "name": "type-bridge",
+  "name": "typeweaver",
   "version": "0.1.0",
   "description": "Stop manually syncing types between your backend and frontend. Auto-generate TypeScript types from your ORM schemas.",
   "main": "src/index.js",
   "bin": {
-    "type-bridge": "./bin/type-bridge.js"
+    "typeweaver": "./bin/type-bridge.js"
   },
   "files": [
     "src/",
