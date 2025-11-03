@@ -16,6 +16,11 @@ docs/
 
 # Examples (keep them for users)
 # examples/
+# But exclude node_modules and generated types in examples
+examples/*/node_modules/
+examples/*/types/
+examples/*/generated-types/
+examples/*/package-lock.json
 
 # Config files
 .eslintrc.js
