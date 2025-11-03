@@ -1,7 +1,7 @@
 /**
  * CLI Interface
  * 
- * Command-line interface for type-bridge
+ * Command-line interface for TypeWeaver
  */
 
 const { Command } = require('commander');
@@ -23,11 +23,11 @@ const packageJson = require('../../package.json');
  */
 program
   .command('init')
-  .description('Initialize type-bridge configuration')
+  .description('Initialize TypeWeaver configuration')
   .option('--force', 'Overwrite existing config')
   .action(async (options) => {
     try {
-      console.log(chalk.cyan.bold('\n🌉 Type-Bridge Setup\n'));
+      console.log(chalk.cyan.bold('\n🧵 TypeWeaver Setup\n'));
 
       const projectRoot = process.cwd();
       const configPath = path.join(projectRoot, 'type-bridge.config.json');
@@ -119,9 +119,9 @@ program
       // Show next steps
       console.log(chalk.cyan('📋 Next steps:\n'));
       console.log(chalk.white('  1. Generate types:'));
-      console.log(chalk.gray('     npx type-bridge generate\n'));
-      console.log(chalk.white('  2. Or start watch mode:'));
-      console.log(chalk.gray('     npx type-bridge watch\n'));
+      console.log(chalk.gray('     npx typeweaver generate\n'));
+      console.log(chalk.dim('  Or start watch mode:\n'));
+      console.log(chalk.gray('     npx typeweaver watch\n'));
 
     } catch (error) {
       handleError(error);
@@ -193,7 +193,7 @@ program
   .option('--output <path>', 'Output path (overrides config)')
   .action(async (options) => {
     try {
-      console.log(chalk.cyan.bold('\n🌉 Type-Bridge Watch Mode\n'));
+      console.log(chalk.cyan.bold('\n🧵 TypeWeaver Watch Mode\n'));
 
       // Load config
       const config = await loadConfig({
@@ -358,7 +358,7 @@ program
  * Program setup
  */
 program
-  .name('type-bridge')
+  .name('typeweaver')
   .description('Auto-generate TypeScript types from your ORM schemas')
   .version(packageJson.version);
 
