@@ -5,6 +5,31 @@ All notable changes to TypeWeaver will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-11-03
+
+### 🐛 Fixed - Mongoose Support
+
+- **Enum Detection**: Fixed Mongoose enum fields not being detected when `type` and `enum` are both present
+  ```javascript
+  // Now correctly generates: role?: 'customer' | 'admin' | 'seller' | null
+  role: { type: String, enum: ['customer', 'admin', 'seller'] }
+  ```
+- **Multiple Models Per File**: Fixed parser to extract all models from single file (was only getting first model)
+- **Nested Object Enums**: Enums in nested objects now correctly generate as union types
+- **Object Type Imports**: Fixed incorrect `import type { object }` - now uses built-in TypeScript `object` type
+
+### ✨ Added
+
+- **Comprehensive Mongoose Example**: Added full e-commerce example with 6 models
+  - User, Product, Cart, Order, Review, Category
+  - Demonstrates enums, nested objects (3+ levels), self-referencing, circular refs
+  - All models with complex real-world scenarios
+
+### 📝 Changes
+
+- Updated `.gitignore` to exclude generated types in examples
+- Improved error handling for parsing failures
+
 ## [1.1.0] - 2025-11-03
 
 ### 🔧 **MAJOR FIX: Separate File Mode**
