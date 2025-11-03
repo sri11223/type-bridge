@@ -43,13 +43,13 @@ interface User {
 
 ```bash
 # One-time setup
-npx typeweaver@beta init
+npx typeweaver init
 
 # Generate types once
-npx typeweaver@beta generate
+npx typeweaver generate
 
 # Or watch mode (auto-sync on every change)
-npx typeweaver@beta watch
+npx typeweaver watch
 ```
 
 **That's it.** Your frontend types stay in sync automatically.
@@ -61,13 +61,13 @@ npx typeweaver@beta watch
 ### Installation
 
 ```bash
-npm install -D typeweaver@beta
+npm install -D typeweaver
 ```
 
 ### Setup (Interactive)
 
 ```bash
-npx typeweaver@beta init
+npx typeweaver init
 ```
 
 This creates `typeweaver.config.json`:
@@ -85,10 +85,10 @@ This creates `typeweaver.config.json`:
 
 ```bash
 # One-time generation
-npx typeweaver@beta generate
+npx typeweaver generate
 
 # Watch mode (auto-regenerate on changes)
-npx typeweaver@beta watch
+npx typeweaver watch
 ```
 
 ---
@@ -231,7 +231,7 @@ export interface User {
 Initialize configuration with interactive prompts.
 
 ```bash
-npx typeweaver@beta init
+npx typeweaver init
 ```
 
 **Options:**
@@ -242,7 +242,7 @@ npx typeweaver@beta init
 Generate types once from your schemas.
 
 ```bash
-npx typeweaver@beta generate
+npx typeweaver generate
 ```
 
 **Options:**
@@ -256,19 +256,27 @@ npx typeweaver@beta generate
 Watch schemas and auto-generate types on changes.
 
 ```bash
-npx typeweaver@beta watch
+npx typeweaver watch
 ```
 
 **Options:**
 - `--config <path>` - Custom config file path
 - `--output <path>` - Override output path
 
+### `verify`
+
+Verify types are in sync with schemas (great for CI/CD).
+
+```bash
+npx typeweaver verify
+```
+
 ### `info`
 
 Show current configuration.
 
 ```bash
-npx typeweaver@beta info
+npx typeweaver info
 ```
 
 ### `clean`
@@ -276,7 +284,7 @@ npx typeweaver@beta info
 Remove all generated type files.
 
 ```bash
-npx typeweaver@beta clean
+npx typeweaver clean
 ```
 
 **Options:**
@@ -426,20 +434,31 @@ MIT © TypeWeaver Contributors
 
 ## 🗺️ Roadmap
 
-### v0.2.0
+### ✅ v1.0.0 (Current - November 2025)
+- ✅ Prisma support
+- ✅ Mongoose support
+- ✅ Circular reference detection
+- ✅ Nested object support
+- ✅ Verification command
+- ✅ Better type mappings
+- ✅ Production ready!
+
+### v1.1.0 (Planned)
+- [ ] Custom type mappings configuration
+- [ ] Field transformations (removeFields, renameFields)
+- [ ] Better error messages with line numbers
+
+### v1.2.0 (Planned)
+- [ ] DTO generation (CreateDto, UpdateDto, ResponseDto)
 - [ ] TypeORM support
 - [ ] Sequelize support
-- [ ] Reference resolution (`--resolve-refs`)
 
-### v0.3.0
+### v1.3.0+ (Future)
 - [ ] Zod schema generation
-- [ ] JSON Schema generation
-- [ ] Custom transformers
-
-### v1.0.0
+- [ ] GraphQL schema generation
+- [ ] React Query hooks generation
+- [ ] tRPC router generation
 - [ ] VS Code extension
-- [ ] API client generation
-- [ ] Migration tools
 
 ---
 

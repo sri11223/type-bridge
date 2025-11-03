@@ -11,9 +11,10 @@ const { STANDARD_TYPES } = require('../core/normalizer');
 /**
  * Convert standard type to TypeScript type
  * @param {Object} field - Normalized field
+ * @param {Object[]} allModels - All models for enum reference lookup
  * @returns {string} TypeScript type string
  */
-function fieldToTypeScript(field) {
+function fieldToTypeScript(field, allModels = []) {
   let tsType;
 
   // Handle enums
@@ -22,7 +23,14 @@ function fieldToTypeScript(field) {
   }
   // Handle arrays
   else if (field.isArray && field.arrayOf) {
-    tsType = `${field.arrayOf}[]`;
+    // Check if arrayOf is an enum type
+    if (field.isEnumArray && field.enumValues) {
+      // Generate union type array: ('USER' | 'ADMIN')[]
+      const enumUnion = field.enumValues.map(v => `'${v}'`).join(' | ');
+      tsType = `(${enumUnion})[]`;
+    } else {
+      tsType = `${field.arrayOf}[]`;
+    }
   }
   // Handle references (foreign keys)
   else if (field.isReference && field.referenceTo) {
@@ -31,7 +39,7 @@ function fieldToTypeScript(field) {
   }
   // Handle nested objects
   else if (field.type === STANDARD_TYPES.OBJECT && field.nested) {
-    tsType = generateInlineInterface(field.nested);
+    tsType = generateInlineInterface(field.nested, allModels);
   }
   // Standard types
   else {
@@ -45,12 +53,13 @@ function fieldToTypeScript(field) {
 /**
  * Generate inline interface for nested objects
  * @param {Object[]} fields - Array of nested fields
+ * @param {Object[]} allModels - All models for enum reference lookup
  * @returns {string} Inline interface string
  */
-function generateInlineInterface(fields) {
+function generateInlineInterface(fields, allModels = []) {
   const fieldStrings = fields.map(field => {
     const optional = field.required ? '' : '?';
-    return `  ${field.name}${optional}: ${fieldToTypeScript(field)};`;
+    return `  ${field.name}${optional}: ${fieldToTypeScript(field, allModels)};`;
   });
   
   return `{\n${fieldStrings.join('\n')}\n}`;
@@ -123,7 +132,7 @@ function generateInterface(model, options = {}) {
   model.fields.forEach(field => {
     const optional = field.required ? '' : '?';
     const readonlyPrefix = readonly ? 'readonly ' : '';
-    const tsType = fieldToTypeScript(field);
+    const tsType = fieldToTypeScript(field, options.allModels);
     
     // Add field comment if description exists
     if (includeComments && field.description) {

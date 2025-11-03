@@ -10,7 +10,6 @@ const {
   generateIndexFile,
   formatCode
 } = require('./typescript-generator');
-const { STANDARD_TYPES } = require('../core/normalizer');
 
 describe('TypeScript Generator', () => {
   describe('fieldToTypeScript', () => {

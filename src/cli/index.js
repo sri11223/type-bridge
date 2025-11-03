@@ -10,7 +10,7 @@ const prompts = require('prompts');
 const path = require('path');
 const fs = require('fs-extra');
 const { generateTypes, detectORM } = require('../core/generator');
-const { loadConfig, createConfigFile, DEFAULT_CONFIG } = require('../config/config-manager');
+const { loadConfig, DEFAULT_CONFIG } = require('../config/config-manager');
 const { watchWithGeneration } = require('../watchers/file-watcher');
 const { handleError } = require('../errors/error-handler');
 const { cleanGeneratedFiles } = require('../writers/file-writer');
@@ -227,16 +227,61 @@ program
   .option('--config <path>', 'Path to config file')
   .action(async (options) => {
     try {
+      console.log(chalk.cyan('🔍 Verifying type synchronization...\n'));
+      
       const config = await loadConfig({ configPath: options.config });
+      const outputPath = path.resolve(config.projectRoot || process.cwd(), config.outputPath || './types');
 
-      // Generate in memory and compare
-      // TODO: Implement verification logic
-      console.log(chalk.cyan('🔍 Verifying...'));
-      console.log(chalk.yellow('\n⚠️  This feature is coming soon!\n'));
+      // Check if output files exist
+      if (!await fs.pathExists(outputPath)) {
+        console.log(chalk.red('❌ Generated types not found!'));
+        console.log(chalk.gray(`   Expected at: ${outputPath}`));
+        console.log(chalk.yellow('\n💡 Run: typeweaver generate\n'));
+        process.exit(1);
+      }
+
+      // Read current generated files
+      const outputFile = path.join(outputPath, 'index.ts');
+      if (!await fs.pathExists(outputFile)) {
+        console.log(chalk.red('❌ Generated types file not found!'));
+        console.log(chalk.gray(`   Expected: ${outputFile}`));
+        process.exit(1);
+      }
+
+      const existingContent = await fs.readFile(outputFile, 'utf-8');
+
+      // Generate types in memory
+      console.log(chalk.gray('Generating types from current schema...'));
+      const result = await generateTypes(config);
+
+      if (!result.success) {
+        console.log(chalk.red(`❌ Failed to generate types: ${result.error}`));
+        process.exit(1);
+      }
+
+      // Compare content (removing timestamps and auto-generated comments)
+      const normalize = (content) => content
+        .replace(/Generated: .+/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      const existingNormalized = normalize(existingContent);
+      const newNormalized = normalize(result.generatedContent || '');
+
+      if (existingNormalized === newNormalized) {
+        console.log(chalk.green('✅ Types are in sync with schemas!\n'));
+        process.exit(0);
+      } else {
+        console.log(chalk.yellow('⚠️  Types are OUT OF SYNC with schemas!'));
+        console.log(chalk.gray('\n   Schema has changed since types were last generated.'));
+        console.log(chalk.yellow('\n💡 Run: typeweaver generate\n'));
+        process.exit(1);
+      }
 
     } catch (error) {
       console.error(chalk.red('❌ Verification failed'));
       handleError(error);
+      process.exit(1);
     }
   });
 

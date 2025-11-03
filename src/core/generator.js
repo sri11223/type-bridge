@@ -135,7 +135,8 @@ async function generateTypes(config) {
 
     // Step 2: Parse schemas
     console.log('📖 Parsing schemas...');
-    const { models, enums } = await parseSchemas(orm, projectRoot, options);
+    let { models } = await parseSchemas(orm, projectRoot, options);
+    const { enums } = await parseSchemas(orm, projectRoot, options);
     
     if (models.length === 0) {
       return {
@@ -146,7 +147,19 @@ async function generateTypes(config) {
     
     console.log(`✅ Found ${models.length} models` + (enums.length > 0 ? ` and ${enums.length} enums` : ''));
 
-    // Step 3: Validate
+    // Step 3: Detect circular references and mark self-references
+    const { detectCircularReferences, markSelfReferences } = require('./normalizer');
+    const circularCheck = detectCircularReferences(models);
+    
+    if (circularCheck.hasCircular) {
+      console.log(`⚠️  Circular references detected: ${circularCheck.circularPaths.join(', ')}`);
+      console.log('   Using forward references to handle cycles safely.');
+    }
+    
+    // Mark self-referencing fields
+    models = markSelfReferences(models);
+
+    // Step 4: Validate
     console.log('✔️  Validating schemas...');
     const validation = validateModels(models);
     
@@ -158,9 +171,9 @@ async function generateTypes(config) {
       };
     }
 
-    // Step 4: Generate TypeScript
+    // Step 5: Generate TypeScript
     console.log('⚙️  Generating TypeScript...');
-    const generatedModels = await generateTypesForModels(models, options);
+    const generatedModels = await generateTypesForModels(models, { ...options, allModels: models });
 
     // Step 5: Write files
     console.log('💾 Writing files...');
@@ -205,12 +218,18 @@ async function generateTypes(config) {
 
     console.log('✅ Generation complete!');
     
+    // Get generated content for verification
+    const generatedContent = outputMode === 'separate' 
+      ? null 
+      : await generateTypeScriptFile(models, { ...options, enums });
+    
     return {
       success: true,
       orm,
       modelsCount: models.length,
       outputPath,
-      models: models.map(m => m.modelName)
+      models: models.map(m => m.modelName),
+      generatedContent
     };
 
   } catch (error) {

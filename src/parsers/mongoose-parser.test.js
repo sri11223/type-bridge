@@ -101,7 +101,7 @@ describe('Mongoose Parser', () => {
 
     test('should handle Mixed type', () => {
       const result = extractFieldType({ type: 'Mixed' });
-      expect(result.type).toBe(STANDARD_TYPES.ANY);
+      expect(result.type).toBe('Record<string, any>');
     });
 
     test('should handle Map type', () => {

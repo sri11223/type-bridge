@@ -4,7 +4,6 @@
 
 const fs = require('fs-extra');
 const path = require('path');
-const { program } = require('commander');
 // Note: We can't easily test the CLI because it calls process.exit and has side effects
 // These tests focus on configuration and setup validation
 

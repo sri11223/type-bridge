@@ -27,7 +27,7 @@ const MONGOOSE_TYPE_MAP = {
   'Date': STANDARD_TYPES.DATE,
   'Buffer': STANDARD_TYPES.STRING,
   'ObjectId': STANDARD_TYPES.STRING,
-  'Mixed': STANDARD_TYPES.ANY,
+  'Mixed': 'Record<string, any>',
   'Decimal128': STANDARD_TYPES.NUMBER,
   'Map': STANDARD_TYPES.OBJECT,
   'Schema.Types.String': STANDARD_TYPES.STRING,
@@ -35,7 +35,7 @@ const MONGOOSE_TYPE_MAP = {
   'Schema.Types.Boolean': STANDARD_TYPES.BOOLEAN,
   'Schema.Types.Date': STANDARD_TYPES.DATE,
   'Schema.Types.ObjectId': STANDARD_TYPES.STRING,
-  'Schema.Types.Mixed': STANDARD_TYPES.ANY,
+  'Schema.Types.Mixed': 'Record<string, any>',
   'Schema.Types.Decimal128': STANDARD_TYPES.NUMBER,
   'Schema.Types.Map': STANDARD_TYPES.OBJECT
 };
@@ -141,11 +141,15 @@ function parseSchemaFields(schemaObj, schemaPaths = {}) {
     // Check if unique
     const isUnique = fieldDef && typeof fieldDef === 'object' && fieldDef.unique === true;
 
-    // Handle nested objects
+    // Handle nested objects (embedded documents)
     let nested = null;
-    if (fieldDef && typeof fieldDef === 'object' && !fieldDef.type && !Array.isArray(fieldDef)) {
+    if (fieldDef && typeof fieldDef === 'object' && !fieldDef.type && !fieldDef.enum && !Array.isArray(fieldDef)) {
+      // This is a nested object definition
       nested = parseSchemaFields(fieldDef);
     }
+
+    // Handle enum arrays specially
+    const isEnumArray = typeInfo.isArray && typeInfo.isEnum;
 
     fields.push({
       name: fieldName,
@@ -156,6 +160,7 @@ function parseSchemaFields(schemaObj, schemaPaths = {}) {
       isReference: typeInfo.isReference || false,
       referenceTo: typeInfo.referenceTo || null,
       isEnum: typeInfo.isEnum || false,
+      isEnumArray: isEnumArray,
       enumValues: typeInfo.enumValues || null,
       defaultValue,
       isUnique,

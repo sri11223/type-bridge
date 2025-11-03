@@ -26,7 +26,7 @@ const PRISMA_TYPE_MAP = {
   'Float': STANDARD_TYPES.NUMBER,
   'Boolean': STANDARD_TYPES.BOOLEAN,
   'DateTime': STANDARD_TYPES.DATE,
-  'Json': STANDARD_TYPES.ANY,
+  'Json': 'Record<string, unknown>',
   'Bytes': STANDARD_TYPES.STRING,
   'Decimal': STANDARD_TYPES.NUMBER,
   'BigInt': STANDARD_TYPES.NUMBER
@@ -47,7 +47,7 @@ function parseField(line) {
   }
 
   // Match field pattern: name Type? @attributes
-  const fieldMatch = line.match(/^(\w+)\s+([\w\[\]]+)(\?)?(.*)$/);
+  const fieldMatch = line.match(/^(\w+)\s+([\w[\]]+)(\?)?(.*)$/);
   if (!fieldMatch) return null;
 
   const [, name, typeStr, optional, attributes] = fieldMatch;
@@ -62,7 +62,6 @@ function parseField(line) {
   // Parse attributes
   const isPrimary = attributes.includes('@id');
   const isUnique = attributes.includes('@unique');
-  const hasDefault = attributes.includes('@default');
   
   // Extract default value if present
   let defaultValue = null;
