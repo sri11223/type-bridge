@@ -1,8 +1,8 @@
 {
   "orm": "prisma",
-  "schemaPath": "./schema.prisma",
-  "outputPath": "./generated-types",
-  "outputMode": "single",
+  "input": "./schema.prisma",
+  "output": "./generated-types",
+  "outputMode": "separate",
   "includeComments": true,
-  "generateIndex": true
+  "backup": true
 }

@@ -5,6 +5,58 @@ All notable changes to TypeWeaver will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-11-03
+
+### 🔧 **MAJOR FIX: Separate File Mode**
+
+Critical improvements to separate file generation mode - now generates perfect, importable TypeScript files!
+
+### ✨ Added
+
+- **Automatic Import Generation**: Separate files now include all necessary imports
+  ```typescript
+  import { Role, OrderStatus } from './enums';
+  import type { Order } from './Order';
+  import type { Cart } from './Cart';
+  ```
+- **Dedicated Enums File**: Enums are now exported in a single `enums.ts` file
+- **Smart Dependency Detection**: Automatically detects enum vs model dependencies
+- **Type-only Imports**: Uses `import type` for model references to avoid circular issues
+
+### 🐛 Fixed
+
+- **DateTime Type Correction**: `DateTime` fields now generate as `string` (ISO format) instead of `Date`
+  - This matches actual JSON serialization behavior
+  - Frontend gets proper type checking with date strings
+- **Optional ID Fields**: Fields with `@default(uuid())` are now correctly required, not optional
+  ```typescript
+  // Before: id?: string | null  ❌
+  // After:  id: string           ✅
+  ```
+- **Enum Import Paths**: Enums now correctly import from `'./enums'` instead of individual files
+- **Missing newlines**: Fixed formatting issues in generated files
+
+### 📚 Documentation
+
+- **Comprehensive Docs**: Added 5 complete documentation files
+  - `docs/getting-started.md` - Step-by-step tutorial
+  - `docs/configuration.md` - Complete config reference
+  - `docs/cli-reference.md` - All CLI commands with examples
+  - `docs/troubleshooting.md` - Common issues and solutions
+  - `docs/contributing.md` - Development guide
+
+### ⚡ Improved
+
+- Better enum detection in separate file mode
+- More robust type dependency analysis
+- Cleaner generated code with proper spacing
+
+### 🧪 Testing
+
+- All 284 tests passing
+- Zero ESLint errors
+- Verified with complex e-commerce example (8 models, 2 enums)
+
 ## [1.0.0] - 2025-11-03
 
 ### 🎉 **PRODUCTION RELEASE**

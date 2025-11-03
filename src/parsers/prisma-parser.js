@@ -19,13 +19,14 @@ const { normalizeModel, STANDARD_TYPES } = require('../core/normalizer');
 
 /**
  * Map Prisma types to standard types
+ * Note: DateTime maps to string because JSON serializes dates as ISO strings
  */
 const PRISMA_TYPE_MAP = {
   'String': STANDARD_TYPES.STRING,
   'Int': STANDARD_TYPES.NUMBER,
   'Float': STANDARD_TYPES.NUMBER,
   'Boolean': STANDARD_TYPES.BOOLEAN,
-  'DateTime': STANDARD_TYPES.DATE,
+  'DateTime': STANDARD_TYPES.STRING, // JSON serializes as ISO string
   'Json': 'Record<string, unknown>',
   'Bytes': STANDARD_TYPES.STRING,
   'Decimal': STANDARD_TYPES.NUMBER,
@@ -72,11 +73,16 @@ function parseField(line) {
 
   // Check if it's a relation (field type is another model)
   const isReference = !PRISMA_TYPE_MAP[baseType] && !isArray;
+  
+  // Determine if field is required
+  // Required if: not marked optional AND (has default OR is primary key)
+  const hasDefault = defaultValue !== null;
+  const isRequired = !optional || hasDefault || isPrimary;
 
   return {
     name,
     type: isArray ? STANDARD_TYPES.ARRAY : mappedType,
-    required: !optional && !isPrimary, // Primary keys are auto-required
+    required: isRequired,
     isPrimary,
     isArray,
     arrayOf: isArray ? mappedType : null,

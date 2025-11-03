@@ -10,7 +10,7 @@
 
 const { detectPrisma, parsePrismaSchema, findPrismaSchema } = require('../parsers/prisma-parser');
 const { detectMongoose, parseMongooseModels } = require('../parsers/mongoose-parser');
-const { generateTypeScriptFile, generateInterface, generateIndexFile } = require('../generators/typescript-generator');
+const { generateTypeScriptFile, generateInterface, generateIndexFile, generateEnumsFile } = require('../generators/typescript-generator');
 const { writeTypesByModel, writeSingleFile } = require('../writers/file-writer');
 const { validateSchema } = require('./normalizer');
 const path = require('path');
@@ -96,7 +96,9 @@ async function generateTypesForModels(models, options = {}) {
   const generated = [];
 
   for (const model of models) {
-    const code = await generateInterface(model, options);
+    // Add standalone: true for separate file mode to include imports
+    // Pass allEnums for dependency detection
+    const code = generateInterface(model, { ...options, standalone: true, allEnums: options.enums || [] });
     generated.push({
       ...model,
       generatedCode: code
@@ -173,7 +175,7 @@ async function generateTypes(config) {
 
     // Step 5: Generate TypeScript
     console.log('⚙️  Generating TypeScript...');
-    const generatedModels = await generateTypesForModels(models, { ...options, allModels: models });
+    const generatedModels = await generateTypesForModels(models, { ...options, allModels: models, enums });
 
     // Step 5: Write files
     console.log('💾 Writing files...');
@@ -183,8 +185,14 @@ async function generateTypes(config) {
       // Write one file per model
       writeResult = await writeTypesByModel(generatedModels, outputPath, options);
       
-      // Also write index file
-      const indexContent = generateIndexFile(models.map(m => m.modelName));
+      // Write enums file if there are any enums
+      if (enums && enums.length > 0) {
+        const enumsContent = generateEnumsFile(enums, options);
+        await writeSingleFile(enumsContent, path.join(outputPath, 'enums.ts'), options);
+      }
+      
+      // Write index file that exports everything
+      const indexContent = generateIndexFile(models.map(m => m.modelName), enums);
       await writeSingleFile(indexContent, path.join(outputPath, 'index.ts'), options);
       
     } else {

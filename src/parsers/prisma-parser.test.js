@@ -65,7 +65,7 @@ describe('Prisma Parser', () => {
       const line = 'createdAt DateTime';
       const result = parseField(line);
 
-      expect(result.type).toBe('Date');
+      expect(result.type).toBe('string'); // DateTime becomes string (ISO format in JSON)
     });
 
     test('should parse Boolean field', () => {

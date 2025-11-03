@@ -114,7 +114,7 @@ enum Role {
       // Check type mappings
       expect(content).toContain('email: string');
       expect(content).toContain('age?: number | null');
-      expect(content).toContain('createdAt: Date');
+      expect(content).toContain('createdAt: string'); // DateTime as ISO string
       expect(content).toContain('published: boolean');
     });
 
@@ -296,7 +296,7 @@ model Example {
       expect(content).toContain('stringField: string');
       expect(content).toContain('intField: number');
       expect(content).toContain('boolField: boolean');
-      expect(content).toContain('dateField: Date');
+      expect(content).toContain('dateField: string'); // DateTime as ISO string
       expect(content).toContain('optionalStr?: string | null');
       expect(content).toContain('arrayField: string[]');
     });
