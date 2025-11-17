@@ -1,12 +1,11 @@
 /**
  * TypeScript Type Generator
- * 
+ *
  * Converts normalized schemas to TypeScript interface definitions.
  * Works with ALL ORMs because it uses normalized format.
  */
 
-const prettier = require('prettier');
-const { STANDARD_TYPES } = require('../core/normalizer');
+const { STANDARD_TYPES } = require("../core/normalizer");
 
 /**
  * Convert standard type to TypeScript type
@@ -19,14 +18,14 @@ function fieldToTypeScript(field, allModels = []) {
 
   // Handle enums
   if (field.isEnum && field.enumValues) {
-    tsType = field.enumValues.map(v => `'${v}'`).join(' | ');
+    tsType = field.enumValues.map((v) => `'${v}'`).join(" | ");
   }
   // Handle arrays
   else if (field.isArray && field.arrayOf) {
     // Check if arrayOf is an enum type
     if (field.isEnumArray && field.enumValues) {
       // Generate union type array: ('USER' | 'ADMIN')[]
-      const enumUnion = field.enumValues.map(v => `'${v}'`).join(' | ');
+      const enumUnion = field.enumValues.map((v) => `'${v}'`).join(" | ");
       tsType = `(${enumUnion})[]`;
     } else {
       tsType = `${field.arrayOf}[]`;
@@ -57,12 +56,15 @@ function fieldToTypeScript(field, allModels = []) {
  * @returns {string} Inline interface string
  */
 function generateInlineInterface(fields, allModels = []) {
-  const fieldStrings = fields.map(field => {
-    const optional = field.required ? '' : '?';
-    return `  ${field.name}${optional}: ${fieldToTypeScript(field, allModels)};`;
+  const fieldStrings = fields.map((field) => {
+    const optional = field.required ? "" : "?";
+    return `  ${field.name}${optional}: ${fieldToTypeScript(
+      field,
+      allModels
+    )};`;
   });
-  
-  return `{\n${fieldStrings.join('\n')}\n}`;
+
+  return `{\n${fieldStrings.join("\n")}\n}`;
 }
 
 /**
@@ -72,10 +74,7 @@ function generateInlineInterface(fields, allModels = []) {
  * @returns {string} TypeScript enum code
  */
 function generateEnum(enumDef, options = {}) {
-  const {
-    exportType = 'export',
-    includeComments = true
-  } = options;
+  const { exportType = "export", includeComments = true } = options;
 
   const lines = [];
 
@@ -89,34 +88,46 @@ function generateEnum(enumDef, options = {}) {
 
   // Generate enum values
   enumDef.values.forEach((value, index) => {
-    const comma = index < enumDef.values.length - 1 ? ',' : '';
+    const comma = index < enumDef.values.length - 1 ? "," : "";
     lines.push(`  ${value} = '${value}'${comma}`);
   });
 
   lines.push(`}`);
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
  * Collect all type dependencies for a model (for import generation)
  * @param {Object} model - Normalized model
- * @param {Object[]} allEnums - Array of all enum definitions  
+ * @param {Object[]} allEnums - Array of all enum definitions
  * @returns {Object} Object with enums and models arrays
  */
 function collectTypeDependencies(model, allEnums = []) {
   const dependencies = {
     enums: new Set(),
-    models: new Set()
+    models: new Set(),
   };
 
   // Create a set of enum names for quick lookup
-  const enumNames = new Set(allEnums.map(e => e.name));
-  
-  // Primitive types that don't need imports
-  const primitives = new Set(['string', 'number', 'boolean', 'Date', 'any', 'unknown', 'void', 'null', 'undefined', 'array', 'object']);
+  const enumNames = new Set(allEnums.map((e) => e.name));
 
-  model.fields.forEach(field => {
+  // Primitive types that don't need imports
+  const primitives = new Set([
+    "string",
+    "number",
+    "boolean",
+    "Date",
+    "any",
+    "unknown",
+    "void",
+    "null",
+    "undefined",
+    "array",
+    "object",
+  ]);
+
+  model.fields.forEach((field) => {
     // For arrays, check arrayOf instead of type
     if (field.isArray && field.arrayOf) {
       if (!primitives.has(field.arrayOf) && field.arrayOf !== model.modelName) {
@@ -128,17 +139,25 @@ function collectTypeDependencies(model, allEnums = []) {
       }
     }
     // For non-arrays, check type
-    else if (field.type && !primitives.has(field.type) && field.type !== model.modelName) {
+    else if (
+      field.type &&
+      !primitives.has(field.type) &&
+      field.type !== model.modelName
+    ) {
       if (enumNames.has(field.type)) {
         dependencies.enums.add(field.type);
       } else {
         dependencies.models.add(field.type);
       }
     }
-    
+
     // Check referenceTo (for relations) - but only if it's different from type
     // to avoid duplicates
-    if (field.referenceTo && field.referenceTo !== field.type && field.referenceTo !== model.modelName) {
+    if (
+      field.referenceTo &&
+      field.referenceTo !== field.type &&
+      field.referenceTo !== model.modelName
+    ) {
       if (enumNames.has(field.referenceTo)) {
         dependencies.enums.add(field.referenceTo);
       } else {
@@ -149,7 +168,7 @@ function collectTypeDependencies(model, allEnums = []) {
 
   return {
     enums: Array.from(dependencies.enums),
-    models: Array.from(dependencies.models)
+    models: Array.from(dependencies.models),
   };
 }
 
@@ -161,10 +180,10 @@ function collectTypeDependencies(model, allEnums = []) {
  */
 function generateInterface(model, options = {}) {
   const {
-    exportType = 'export',
+    exportType = "export",
     includeComments = true,
     readonly = false,
-    standalone = false // If true, include imports for separate file mode
+    standalone = false, // If true, include imports for separate file mode
   } = options;
 
   const lines = [];
@@ -172,22 +191,22 @@ function generateInterface(model, options = {}) {
   // Add imports if standalone mode (separate files)
   if (standalone) {
     const deps = collectTypeDependencies(model, options.allEnums || []);
-    
+
     // Import enums if needed
     if (deps.enums.length > 0) {
-      lines.push(`import { ${deps.enums.join(', ')} } from './enums';`);
+      lines.push(`import { ${deps.enums.join(", ")} } from './enums';`);
     }
-    
+
     // Import other models if needed
     if (deps.models.length > 0) {
-      deps.models.forEach(modelName => {
+      deps.models.forEach((modelName) => {
         lines.push(`import type { ${modelName} } from './${modelName}';`);
       });
     }
-    
+
     // Add blank line after imports
     if (deps.enums.length > 0 || deps.models.length > 0) {
-      lines.push('');
+      lines.push("");
     }
   }
 
@@ -207,22 +226,22 @@ function generateInterface(model, options = {}) {
   lines.push(`${exportType} interface ${model.modelName} {`);
 
   // Generate fields
-  model.fields.forEach(field => {
-    const optional = field.required ? '' : '?';
-    const readonlyPrefix = readonly ? 'readonly ' : '';
+  model.fields.forEach((field) => {
+    const optional = field.required ? "" : "?";
+    const readonlyPrefix = readonly ? "readonly " : "";
     const tsType = fieldToTypeScript(field, options.allModels);
-    
+
     // Add field comment if description exists
     if (includeComments && field.description) {
       lines.push(`  /** ${field.description} */`);
     }
-    
+
     lines.push(`  ${readonlyPrefix}${field.name}${optional}: ${tsType};`);
   });
 
   lines.push(`}`);
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
@@ -232,8 +251,8 @@ function generateInterface(model, options = {}) {
  * @returns {string} TypeScript code for all models
  */
 function generateTypes(models, options = {}) {
-  const interfaces = models.map(model => generateInterface(model, options));
-  return interfaces.join('\n\n');
+  const interfaces = models.map((model) => generateInterface(model, options));
+  return interfaces.join("\n\n");
 }
 
 /**
@@ -243,16 +262,33 @@ function generateTypes(models, options = {}) {
  */
 async function formatCode(code) {
   try {
+    // When running under Jest or if formatting is explicitly disabled,
+    // skip loading Prettier to avoid opening TTY/stdin handles that keep
+    // the test runner from exiting. Tests don't need formatted output.
+    if (
+      process.env.JEST_WORKER_ID ||
+      process.env.TYPEBRIDGE_SKIP_FORMAT === "1"
+    ) {
+      return code;
+    }
+
+    // Require Prettier lazily to avoid opening stdin/TTY handles
+    // when this module is loaded by code paths that don't need formatting.
+    const prettier = require("prettier");
+
     return await prettier.format(code, {
-      parser: 'typescript',
+      parser: "typescript",
       semi: true,
       singleQuote: true,
-      trailingComma: 'es5',
+      trailingComma: "es5",
       printWidth: 80,
-      tabWidth: 2
+      tabWidth: 2,
     });
   } catch (error) {
-    console.warn('Failed to format code with Prettier, returning unformatted:', error.message);
+    console.warn(
+      "Failed to format code with Prettier, returning unformatted:",
+      error.message
+    );
     return code;
   }
 }
@@ -264,11 +300,7 @@ async function formatCode(code) {
  * @returns {Promise<string>} Complete TypeScript file content
  */
 async function generateTypeScriptFile(models, options = {}) {
-  const {
-    includeHeader = true,
-    banner = null,
-    enums = []
-  } = options;
+  const { includeHeader = true, banner = null, enums = [] } = options;
 
   const parts = [];
 
@@ -279,20 +311,20 @@ async function generateTypeScriptFile(models, options = {}) {
     parts.push(` * Do not edit manually`);
     parts.push(` * Generated: ${new Date().toISOString()}`);
     parts.push(` */`);
-    parts.push('');
+    parts.push("");
   }
 
   // Add custom banner if provided
   if (banner) {
     parts.push(`/* ${banner} */`);
-    parts.push('');
+    parts.push("");
   }
 
   // Generate enums first
   if (enums && enums.length > 0) {
-    const enumCode = enums.map(e => generateEnum(e, options)).join('\n\n');
+    const enumCode = enums.map((e) => generateEnum(e, options)).join("\n\n");
     parts.push(enumCode);
-    parts.push('');
+    parts.push("");
   }
 
   // Generate all types
@@ -300,7 +332,7 @@ async function generateTypeScriptFile(models, options = {}) {
   parts.push(types);
 
   // Combine and format
-  const code = parts.join('\n');
+  const code = parts.join("\n");
   return await formatCode(code);
 }
 
@@ -316,18 +348,18 @@ function generateEnumsFile(enums, options = {}) {
     ` * AUTO-GENERATED by type-bridge`,
     ` * Enum definitions`,
     ` */`,
-    ''
+    "",
   ];
 
   // Generate all enums
   enums.forEach((enumDef, index) => {
     if (index > 0) {
-      lines.push(''); // Add blank line between enums
+      lines.push(""); // Add blank line between enums
     }
     lines.push(generateEnum(enumDef, options));
   });
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
@@ -342,22 +374,22 @@ function generateIndexFile(modelNames, enums = []) {
     ` * AUTO-GENERATED by type-bridge`,
     ` * Type exports`,
     ` */`,
-    ''
+    "",
   ];
 
   // Export enums if any
   if (enums && enums.length > 0) {
-    const enumNames = enums.map(e => e.name).join(', ');
+    const enumNames = enums.map((e) => e.name).join(", ");
     lines.push(`export { ${enumNames} } from './enums';`);
-    lines.push('');
+    lines.push("");
   }
 
   // Export all model types
-  modelNames.forEach(name => {
+  modelNames.forEach((name) => {
     lines.push(`export type { ${name} } from './${name}';`);
   });
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 module.exports = {
@@ -369,5 +401,5 @@ module.exports = {
   generateEnumsFile,
   collectTypeDependencies,
   formatCode,
-  fieldToTypeScript
+  fieldToTypeScript,
 };
