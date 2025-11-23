@@ -5,6 +5,21 @@ All notable changes to TypeWeaver will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2025-11-23
+
+### 🐛 Fixed
+
+- **Prettier Lazy Loading**: Fixed Jest TTY handle issue by lazy-loading Prettier only when needed
+  - Prevents test runner from hanging on exit
+  - Skips formatting during test runs (via `JEST_WORKER_ID` detection)
+  - Added `TYPEBRIDGE_SKIP_FORMAT` environment variable option
+
+### 📝 Documentation
+
+- **CONTRIBUTING.md**: Added comprehensive contributor guide with Windows PowerShell commands
+- **.env.example**: Added environment variable documentation
+- **README.md**: Improved documentation with Windows-specific setup instructions and better formatting
+
 ## [1.1.2] - 2025-11-03
 
 ### 🐛 Fixed
