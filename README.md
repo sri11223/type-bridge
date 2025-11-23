@@ -18,7 +18,7 @@ Full-stack TypeScript developers face a daily problem:
 const userSchema = new Schema({
   name: String,
   email: String,
-  phoneNumber: String  // ← NEW FIELD
+  phoneNumber: String, // ← NEW FIELD
 });
 
 // Frontend: Types are now OUT OF SYNC ❌
@@ -32,6 +32,7 @@ interface User {
 ```
 
 **The consequences:**
+
 - ⏰ 30+ minutes per week manually copying types
 - 🐛 Type mismatches cause production bugs
 - 🔄 Constant context switching between backend/frontend
@@ -57,6 +58,30 @@ npx typeweaver watch
 ---
 
 ## 🚀 Quick Start
+
+### Run locally (Windows PowerShell)
+
+If you're on Windows and using PowerShell, here are copy/paste-friendly commands:
+
+```powershell
+# install deps
+npm install
+
+# interactive setup
+npx typeweaver init
+
+# generate types once
+npx typeweaver generate
+
+# watch mode
+npx typeweaver watch
+
+# run tests
+npm test
+
+# run dev CLI
+npm run dev
+```
 
 ### Installation
 
@@ -97,12 +122,12 @@ npx typeweaver watch
 
 ### ✅ Supported ORMs
 
-| ORM | Status | Description |
-|-----|--------|-------------|
-| **Prisma** | ✅ **Ready** | Parse schema.prisma files |
-| **Mongoose** | ✅ **Ready** | Parse Schema definitions |
-| **TypeORM** | 🚧 Coming Soon | Parse decorators |
-| **Sequelize** | 🚧 Coming Soon | Parse models |
+| ORM           | Status         | Description               |
+| ------------- | -------------- | ------------------------- |
+| **Prisma**    | ✅ **Ready**   | Parse schema.prisma files |
+| **Mongoose**  | ✅ **Ready**   | Parse Schema definitions  |
+| **TypeORM**   | 🚧 Coming Soon | Parse decorators          |
+| **Sequelize** | 🚧 Coming Soon | Parse models              |
 
 ### ✨ Key Features
 
@@ -168,8 +193,8 @@ const userSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
   age: Number,
-  role: { type: String, enum: ['user', 'admin'] },
-  posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }]
+  role: { type: String, enum: ["user", "admin"] },
+  posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
 });
 ```
 
@@ -181,7 +206,7 @@ export interface User {
   name: string;
   email: string;
   age?: number | null;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   posts: string[];
 }
 ```
@@ -201,26 +226,23 @@ export interface User {
   "outputMode": "single",
   "watch": false,
   "includeComments": true,
-  "exclude": [
-    "**/node_modules/**",
-    "**/*.test.{js,ts}"
-  ]
+  "exclude": ["**/node_modules/**", "**/*.test.{js,ts}"]
 }
 ```
 
 ### Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `orm` | string | `"auto"` | ORM to use: `auto`, `prisma`, `mongoose` |
-| `modelsPath` | string | `"./models"` | Path to Mongoose models |
-| `schemaPath` | string | `"./prisma/schema.prisma"` | Path to Prisma schema |
-| `outputPath` | string | `"./types"` | Where to generate types |
-| `outputMode` | string | `"single"` | `single` file or `separate` files |
-| `watch` | boolean | `false` | Enable watch mode |
-| `includeComments` | boolean | `true` | Include JSDoc comments |
-| `readonly` | boolean | `false` | Generate readonly properties |
-| `exclude` | string[] | `[]` | Files to exclude |
+| Option            | Type     | Default                    | Description                              |
+| ----------------- | -------- | -------------------------- | ---------------------------------------- |
+| `orm`             | string   | `"auto"`                   | ORM to use: `auto`, `prisma`, `mongoose` |
+| `modelsPath`      | string   | `"./models"`               | Path to Mongoose models                  |
+| `schemaPath`      | string   | `"./prisma/schema.prisma"` | Path to Prisma schema                    |
+| `outputPath`      | string   | `"./types"`                | Where to generate types                  |
+| `outputMode`      | string   | `"single"`                 | `single` file or `separate` files        |
+| `watch`           | boolean  | `false`                    | Enable watch mode                        |
+| `includeComments` | boolean  | `true`                     | Include JSDoc comments                   |
+| `readonly`        | boolean  | `false`                    | Generate readonly properties             |
+| `exclude`         | string[] | `[]`                       | Files to exclude                         |
 
 ---
 
@@ -235,6 +257,7 @@ npx typeweaver init
 ```
 
 **Options:**
+
 - `--force` - Overwrite existing config
 
 ### `generate`
@@ -246,6 +269,7 @@ npx typeweaver generate
 ```
 
 **Options:**
+
 - `--config <path>` - Custom config file path
 - `--output <path>` - Override output path
 - `--dry-run` - Preview without writing
@@ -260,6 +284,7 @@ npx typeweaver watch
 ```
 
 **Options:**
+
 - `--config <path>` - Custom config file path
 - `--output <path>` - Override output path
 
@@ -288,6 +313,7 @@ npx typeweaver clean
 ```
 
 **Options:**
+
 - `--dry-run` - Preview files to be deleted
 
 ---
@@ -354,10 +380,7 @@ sdk/
 
 ```json
 {
-  "outputPath": [
-    "./frontend/types",
-    "./mobile/types"
-  ]
+  "outputPath": ["./frontend/types", "./mobile/types"]
 }
 ```
 
@@ -365,11 +388,7 @@ sdk/
 
 ```json
 {
-  "exclude": [
-    "**/node_modules/**",
-    "**/*.test.js",
-    "**/deprecated/**"
-  ]
+  "exclude": ["**/node_modules/**", "**/*.test.js", "**/deprecated/**"]
 }
 ```
 
@@ -377,13 +396,13 @@ sdk/
 
 ## 🆚 Comparison
 
-| Solution | Zero Migration | Real-Time | No Stack Lock-in | Setup Time |
-|----------|----------------|-----------|------------------|------------|
-| **typeweaver** | ✅ | ✅ (<500ms) | ✅ | <1 min |
-| GraphQL Codegen | ❌ (Requires GraphQL) | ⚠️ (Slow) | ❌ | Weeks |
-| tRPC | ❌ (Full rewrite) | ✅ | ❌ | Days |
-| Manual npm packages | ✅ | ❌ (10+ min) | ✅ | Hours |
-| Monorepo sharing | ⚠️ (Complex) | ⚠️ (Requires rebuild) | ✅ | Days |
+| Solution            | Zero Migration        | Real-Time             | No Stack Lock-in | Setup Time |
+| ------------------- | --------------------- | --------------------- | ---------------- | ---------- |
+| **typeweaver**      | ✅                    | ✅ (<500ms)           | ✅               | <1 min     |
+| GraphQL Codegen     | ❌ (Requires GraphQL) | ⚠️ (Slow)             | ❌               | Weeks      |
+| tRPC                | ❌ (Full rewrite)     | ✅                    | ❌               | Days       |
+| Manual npm packages | ✅                    | ❌ (10+ min)          | ✅               | Hours      |
+| Monorepo sharing    | ⚠️ (Complex)          | ⚠️ (Requires rebuild) | ✅               | Days       |
 
 ---
 
@@ -435,6 +454,7 @@ MIT © TypeWeaver Contributors
 ## 🗺️ Roadmap
 
 ### ✅ v1.0.0 (Current - November 2025)
+
 - ✅ Prisma support
 - ✅ Mongoose support
 - ✅ Circular reference detection
@@ -444,16 +464,19 @@ MIT © TypeWeaver Contributors
 - ✅ Production ready!
 
 ### v1.1.0 (Planned)
+
 - [ ] Custom type mappings configuration
 - [ ] Field transformations (removeFields, renameFields)
 - [ ] Better error messages with line numbers
 
 ### v1.2.0 (Planned)
+
 - [ ] DTO generation (CreateDto, UpdateDto, ResponseDto)
 - [ ] TypeORM support
 - [ ] Sequelize support
 
 ### v1.3.0+ (Future)
+
 - [ ] Zod schema generation
 - [ ] GraphQL schema generation
 - [ ] React Query hooks generation
@@ -465,4 +488,3 @@ MIT © TypeWeaver Contributors
 **Made with ❤️ for full-stack TypeScript developers**
 
 Stop wasting time on type synchronization. Start using **typeweaver** today! 🚀
-
